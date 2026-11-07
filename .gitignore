@@ -9,3 +9,5 @@ build/
 .cxx
 *.keystore
 *.jks
+*.apk
+*.aab
