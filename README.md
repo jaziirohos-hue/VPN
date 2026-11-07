@@ -56,6 +56,8 @@ docs/         approved design preview, screenshots, Play Store kit
 
 The Xalane control API and the VPN node agent live in [`backend/`](backend/README.md) and [`node/`](node/). Build the app with `-PxalaneApiUrl=https://your-api` and it lists the Xalane servers and connects to them automatically. Each phone registers anonymously with its own WireGuard key.
 
+**Free hosting:** [docs/free-server-guide.md](docs/free-server-guide.md) runs the API and a VPN server on one free Oracle Cloud server with `setup-free-server.sh`.
+
 ## Next steps
 
 1. Deploy the API and the first VPN servers (see [backend/README.md](backend/README.md)).

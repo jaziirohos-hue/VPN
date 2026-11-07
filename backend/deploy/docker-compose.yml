@@ -7,6 +7,9 @@ services:
     build: ..
     restart: unless-stopped
     env_file: .env
+    # Reachable from this machine only, so a VPN node on the same server can use http://127.0.0.1:8000
+    ports:
+      - "127.0.0.1:8000:8000"
     volumes:
       - xalane-data:/data
   caddy:

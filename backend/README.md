@@ -31,6 +31,8 @@ Interactive docs are at `/docs` once the API runs.
 
 Housekeeping runs hourly: tunnel addresses unused for `PEER_TTL_DAYS` (30) are freed, and phones inactive for `DEVICE_TTL_DAYS` (180) are deleted.
 
+**Want it free?** Follow [docs/free-server-guide.md](../docs/free-server-guide.md): one free Oracle Cloud server runs both the API and a VPN server, set up by `setup-free-server.sh`.
+
 ## 1. Deploy the API
 
 Any small Linux VPS works (1 CPU, 1 GB RAM). You need a domain name pointing at it, for example `api.xalane.com`.
