@@ -237,6 +237,7 @@ private fun ServerRow(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(title, color = c.text, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                 if (server?.custom == true) Text("LIVE", color = c.ok, fontWeight = FontWeight.Bold, fontSize = 9.5.sp, letterSpacing = 1.sp)
+                if (server?.remote == true && !server.online) Text("OFFLINE", color = c.faint, fontWeight = FontWeight.Bold, fontSize = 9.5.sp, letterSpacing = 1.sp)
             }
             Text(subtitle, color = c.muted, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }

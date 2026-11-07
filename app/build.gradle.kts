@@ -15,10 +15,12 @@ android {
         applicationId = "com.xalane.vpn"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
         // Demo locations and the Premium screen. Off in release until real servers and billing exist.
         buildConfigField("boolean", "DEMO_CONTENT", "true")
+        // Xalane control API, e.g. https://api.xalane.com. Set xalaneApiUrl in gradle.properties or with -PxalaneApiUrl=...
+        buildConfigField("String", "API_BASE_URL", "\"${project.findProperty("xalaneApiUrl") ?: ""}\"")
     }
 
     // Upload key for Google Play, read from keystore.properties (never committed).

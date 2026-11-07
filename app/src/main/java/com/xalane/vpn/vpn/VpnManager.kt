@@ -9,6 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import com.xalane.vpn.data.ApiException
+import java.io.IOException
 import java.net.InetAddress
 
 sealed interface VpnState {
@@ -35,10 +37,12 @@ class VpnManager(context: Context) {
         }
     }
 
-    suspend fun connect(serverId: String, config: Config, blockAds: Boolean) = withContext(Dispatchers.IO) {
+    /** Connects to [serverId]. [config] may do network work (asking the API for a tunnel). */
+    suspend fun connect(serverId: String, blockAds: Boolean, config: suspend () -> Config) = withContext(Dispatchers.IO) {
         _state.value = VpnState.Connecting
         try {
-            val finalConfig = if (blockAds) withDns(config, AD_BLOCK_DNS) else config
+            val base = config()
+            val finalConfig = if (blockAds) withDns(base, AD_BLOCK_DNS) else base
             backend.setState(tunnel, Tunnel.State.UP, finalConfig)
             _state.value = VpnState.Connected(serverId, System.currentTimeMillis())
         } catch (e: Exception) {
@@ -77,6 +81,8 @@ class VpnManager(context: Context) {
     }
 
     private fun friendlyError(e: Exception): String = when {
+        e is ApiException -> e.message ?: "The Xalane server refused the connection."
+        e is IOException -> "Can't reach Xalane. Check your internet connection and try again."
         e.message?.contains("permission", ignoreCase = true) == true ->
             "Android did not allow the VPN. Tap Connect and accept the system prompt."
         else -> "Could not connect: ${e.message ?: e.javaClass.simpleName}"

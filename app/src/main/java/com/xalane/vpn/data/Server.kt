@@ -32,9 +32,14 @@ data class Server(
     /** True for configs the user imported. */
     val custom: Boolean = false,
     val config: Config? = null,
+    /** True for servers listed by the Xalane API. They connect through the API, not a stored config. */
+    val remote: Boolean = false,
+    val online: Boolean = false,
+    val host: String? = null,
+    val load: Int? = null,
 ) {
-    val canConnect: Boolean get() = config != null
-    val isDemo: Boolean get() = !custom && config == null
+    val canConnect: Boolean get() = config != null || (remote && online)
+    val isDemo: Boolean get() = !custom && !remote && config == null
 }
 
 const val AUTO_SERVER_ID = "auto"

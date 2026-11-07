@@ -68,6 +68,10 @@ fun AppRoot(vm: MainViewModel, state: UiState) {
 
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let { vm.import(it) } }
 
+    LaunchedEffect(tab) {
+        if (tab == Tab.SERVERS) vm.refreshServers()
+    }
+
     BackHandler(enabled = !showSplash && tab != Tab.HOME) { tab = Tab.HOME }
 
     Box(Modifier.fillMaxSize().background(c.bg)) {
@@ -107,6 +111,7 @@ fun AppRoot(vm: MainViewModel, state: UiState) {
                             onBlockAds = { vm.setBlockAds(it) },
                             onTheme = { vm.setTheme(it) },
                             onOpenPremium = { tab = Tab.PREMIUM },
+                            onDeleteData = if (vm.hasApi) ({ vm.deleteMyData() }) else null,
                         )
                     }
                 }

@@ -39,7 +39,7 @@ data class UiState(
 
     /** Fastest server that can connect, or the fastest Demo location when nothing is live yet. */
     val fastest: Server?
-        get() = servers.filter { it.canConnect }.minByOrNull { it.latencyMs ?: Int.MAX_VALUE }
+        get() = servers.filter { it.canConnect }.minByOrNull { (it.latencyMs ?: 10_000) + (it.load ?: 0) }
             ?: servers.minByOrNull { it.latencyMs ?: Int.MAX_VALUE }
 
     /** The server the next connection will use. */
@@ -118,6 +118,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         val target = state.value.target
         val problem = when {
             target == null -> "No servers yet. Import a WireGuard config to connect."
+            target.remote && !target.online -> "${target.country} is offline right now. Pick another location."
             !target.canConnect -> "${target.country} is a Demo location and isn't live yet. Import your own WireGuard config in Settings to connect today."
             else -> null
         }
@@ -128,8 +129,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun connect() {
         val s = state.value
         val target = s.target ?: return
-        val config = target.config ?: return
-        viewModelScope.launch { vpn.connect(target.id, config, s.settings.blockAds) }
+        if (!target.canConnect) return
+        viewModelScope.launch { vpn.connect(target.id, s.settings.blockAds) { configFor(target) } }
     }
 
     fun disconnect() {
@@ -142,15 +143,27 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             if (vpn.state.value is VpnState.Connected) {
                 val server = if (id == AUTO_SERVER_ID) state.value.copy(settings = state.value.settings.copy(selectedServerId = id)).fastest
                 else serverRepo.servers.value.firstOrNull { it.id == id }
-                val config = server?.config
-                if (server == null || config == null) {
-                    _messages.emit("Still connected to the previous server. ${server?.country ?: "That location"} isn't live yet.")
+                if (server == null || !server.canConnect) {
+                    _messages.emit("Still connected to the previous server. ${server?.country ?: "That location"} isn't available.")
                 } else {
                     vpn.disconnect()
-                    vpn.connect(server.id, config, state.value.settings.blockAds)
+                    vpn.connect(server.id, state.value.settings.blockAds) { configFor(server) }
                 }
             }
         }
+    }
+
+    private suspend fun configFor(server: Server) = server.config ?: serverRepo.remoteConfig(server)
+
+    fun refreshServers() = viewModelScope.launch { serverRepo.load() }
+
+    val hasApi: Boolean get() = serverRepo.hasApi
+
+    fun deleteMyData() = viewModelScope.launch {
+        if (vpn.state.value is VpnState.Connected) vpn.disconnect()
+        runCatching { serverRepo.deleteRemoteData() }
+            .onSuccess { _messages.emit("Your device data was deleted from Xalane servers.") }
+            .onFailure { _messages.emit("Couldn't delete your data right now. Check your connection and try again.") }
     }
 
     fun toggleFavorite(id: String) = viewModelScope.launch { settingsRepo.toggleFavorite(id) }

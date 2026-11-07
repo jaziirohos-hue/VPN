@@ -18,7 +18,11 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.InetAddress
 
-class ServerRepository(private val context: Context) {
+class ServerRepository(
+    private val context: Context,
+    private val api: XalaneApi?,
+    private val identity: DeviceIdentity,
+) {
 
     private val json = Json { ignoreUnknownKeys = true }
     private val configDir = File(context.filesDir, "configs").apply { mkdirs() }
@@ -46,9 +50,46 @@ class ServerRepository(private val context: Context) {
                 config = config,
             )
         }
-        _servers.value = loadCustom() + bundled
+        val remote = api?.let { a ->
+            runCatching { a.servers() }.getOrNull()?.map { s ->
+                Server(
+                    id = s.id, country = s.country, countryCode = s.countryCode, city = s.city, lat = s.lat, lon = s.lon,
+                    streaming = s.streaming, remote = true, online = s.online, host = s.host, load = s.load,
+                )
+            }
+        }.orEmpty()
+        // Demo locations only fill the list when the Xalane API has no servers to show.
+        val shownBundled = if (remote.isEmpty()) bundled else bundled.filterNot { it.isDemo }
+        _servers.value = loadCustom() + remote + shownBundled
         measureLatency()
     }
+
+    /** Asks the Xalane API for a tunnel on [server] and returns a ready WireGuard config. */
+    suspend fun remoteConfig(server: Server): Config {
+        val a = api ?: error("No Xalane API is configured.")
+        var id = identity.get(a)
+        val response = try {
+            a.connect(id.token, server.id)
+        } catch (e: ApiException) {
+            if (e.code != 401) throw e
+            // The API forgot this phone (for example after cleanup). Register again once.
+            identity.reset()
+            id = identity.get(a)
+            a.connect(id.token, server.id)
+        }
+        return Config.parse(wireGuardConfigText(id.privateKey, response).byteInputStream())
+    }
+
+    /** Deletes this phone's data on the Xalane API and forgets its identity. */
+    suspend fun deleteRemoteData(): Boolean {
+        val a = api ?: return false
+        val id = identity.current() ?: return true
+        runCatching { a.deleteDevice(id.token) }.onFailure { e -> if (e !is ApiException || e.code != 401) throw e }
+        identity.reset()
+        return true
+    }
+
+    val hasApi: Boolean get() = api != null
 
     private fun loadCustom(): List<Server> =
         configDir.listFiles { f -> f.extension == "conf" }.orEmpty().sortedBy { it.name }.mapNotNull { file ->
@@ -70,7 +111,7 @@ class ServerRepository(private val context: Context) {
     private suspend fun measureLatency() = coroutineScope {
         val measured = _servers.value.filter { it.canConnect }.map { server ->
             async(Dispatchers.IO) {
-                val host = server.config?.peers?.firstOrNull()?.endpoint?.orElse(null)?.host
+                val host = server.config?.peers?.firstOrNull()?.endpoint?.orElse(null)?.host ?: server.host
                 server.id to host?.let { ping(it) }
             }
         }.awaitAll().toMap()

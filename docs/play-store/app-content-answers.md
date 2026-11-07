@@ -21,10 +21,16 @@ Choose **18 and over** (or 13+). Do not include children; this keeps the app out
 No.
 
 ## Data safety
-- **Does your app collect or share any of the required user data types?** No.
-  - No account, analytics, ads or crash reporting.
-  - VPN traffic goes to the server the user configures; Xalane does not receive it.
-  - Settings and configs stay on the device.
+Two cases, depending on the build:
+
+**Build without the Xalane API** (imported configs only): the app collects no user data. Answer **No**.
+
+**Build with the Xalane API** (`xalaneApiUrl` set): declare
+- **Device or other IDs**: *Collected*, not shared. Purpose: *App functionality*. Not optional (needed to connect). This covers the random device ID and the device's WireGuard public key.
+- Nothing else is collected. No account, analytics, ads or crash reporting.
+- **Data deletion**: users can delete it in the app (Settings → Delete my data); inactive devices are deleted automatically after 180 days.
+
+In both cases:
   - The IP check (`api.ipify.org`) and optional AdGuard DNS are requests the user's device makes to show its own IP and to filter DNS; the app does not keep or send that data anywhere else. If you want to be extra careful, you can declare "Approximate location (IP address)" as *shared, not collected, ephemeral, for app functionality*.
 - **Is all user data encrypted in transit?** Yes (WireGuard and HTTPS).
 - **Can users request data deletion?** Data lives only on the device; removing a server or uninstalling deletes it.

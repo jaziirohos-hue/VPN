@@ -25,6 +25,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lock
@@ -62,11 +69,23 @@ fun SettingsScreen(
     onBlockAds: (Boolean) -> Unit,
     onTheme: (ThemeMode) -> Unit,
     onOpenPremium: () -> Unit,
+    onDeleteData: (() -> Unit)? = null,
 ) {
     val c = X.colors
     val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(onImport) }
     val s = state.settings
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    if (confirmDelete && onDeleteData != null) {
+        AlertDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = { Text("Delete your data?") },
+            text = { Text("This disconnects the VPN and removes this phone's key and addresses from Xalane servers. You can connect again later.") },
+            confirmButton = { TextButton(onClick = { onDeleteData(); confirmDelete = false }) { Text("Delete", color = c.bad) } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
+            containerColor = c.surface, titleContentColor = c.text, textContentColor = c.muted,
+        )
+    }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 16.dp)) {
         ScreenTitle("Settings")
@@ -122,6 +141,10 @@ fun SettingsScreen(
         SectionLabel("Privacy", Modifier.padding(top = 10.dp))
         XCard {
             ToggleItem(Icons.Rounded.Block, "Block ads and trackers", "Uses AdGuard DNS while connected", s.blockAds, onBlockAds)
+            if (onDeleteData != null) {
+                Divider()
+                NavItem(Icons.Rounded.DeleteForever, "Delete my data", "Removes this phone from Xalane servers", null) { confirmDelete = true }
+            }
         }
 
         SectionLabel("App", Modifier.padding(top = 10.dp))

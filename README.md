@@ -47,13 +47,18 @@ app/src/main/java/com/xalane/vpn/
   data/        servers (bundled + imported configs), settings (DataStore)
   vpn/         WireGuard tunnel manager, public IP lookup
   ui/          view model, app root, theme, components, screens
-docs/          approved design preview and screenshots
+backend/      control API (FastAPI), Docker deployment, admin CLI
+node/         VPN server setup script and sync agent
+docs/         approved design preview, screenshots, Play Store kit
 ```
+
+## Backend
+
+The Xalane control API and the VPN node agent live in [`backend/`](backend/README.md) and [`node/`](node/). Build the app with `-PxalaneApiUrl=https://your-api` and it lists the Xalane servers and connects to them automatically. Each phone registers anonymously with its own WireGuard key.
 
 ## Next steps
 
-1. Backend: account and device registration, server list API, issuing WireGuard configs per device.
-2. VPN servers: deploy WireGuard servers in the chosen countries.
-3. Google Play Billing for Premium.
+1. Deploy the API and the first VPN servers (see [backend/README.md](backend/README.md)).
+2. Google Play Billing for Premium.
 
 Fonts: Sora, Figtree and JetBrains Mono, under the SIL Open Font License.

@@ -13,3 +13,8 @@ build/
 *.aab
 keystore.properties
 keystore/
+backend/.venv/
+backend/*.db*
+__pycache__/
+.pytest_cache/
+backend/deploy/.env
