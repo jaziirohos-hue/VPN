@@ -68,8 +68,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         viewModelScope.launch {
-            serverRepo.load()
-            val settings = settingsRepo.settings.first()
+            val saved = settingsRepo.settings.first()
+            if (saved.apiUrl != null) serverRepo.setApiUrl(saved.apiUrl) else serverRepo.load()
+            val settings = saved
             if (settings.autoConnect && VpnService.prepare(getApplication()) == null && vpn.state.value == VpnState.Disconnected) {
                 delay(300)
                 connect()
@@ -158,6 +159,22 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun refreshServers() = viewModelScope.launch { serverRepo.load() }
 
     val hasApi: Boolean get() = serverRepo.hasApi
+    val apiUrl: String get() = serverRepo.apiUrl
+    val defaultApiUrl: String get() = com.xalane.vpn.BuildConfig.API_BASE_URL
+
+    fun setApiUrl(url: String?) = viewModelScope.launch {
+        val clean = url?.trim()?.trimEnd('/')
+        if (clean != null && clean.isNotEmpty() && !(clean.startsWith("https://") || clean.startsWith("http://"))) {
+            _messages.emit("The address must start with https://")
+            return@launch
+        }
+        if (vpn.state.value is VpnState.Connected) vpn.disconnect()
+        settingsRepo.setApiUrl(clean?.takeIf { it != defaultApiUrl })
+        settingsRepo.select(AUTO_SERVER_ID)
+        serverRepo.setApiUrl(clean)
+        val count = serverRepo.servers.value.count { it.remote }
+        _messages.emit(if (count > 0) "Connected to ${serverRepo.apiUrl}. $count servers found." else "Saved. No servers found at ${serverRepo.apiUrl} yet.")
+    }
 
     fun deleteMyData() = viewModelScope.launch {
         if (vpn.state.value is VpnState.Connected) vpn.disconnect()

@@ -20,9 +20,24 @@ import java.net.InetAddress
 
 class ServerRepository(
     private val context: Context,
-    private val api: XalaneApi?,
+    private val defaultApiUrl: String,
     private val identity: DeviceIdentity,
 ) {
+    @Volatile private var api: XalaneApi? = defaultApiUrl.takeIf { it.isNotBlank() }?.let { XalaneApi(it) }
+    @Volatile var apiUrl: String = defaultApiUrl
+        private set
+
+    /** Switches to another Xalane server address (null = built-in default) and reloads the list. */
+    suspend fun setApiUrl(url: String?) {
+        val next = url?.trim()?.trimEnd('/')?.takeIf { it.isNotBlank() } ?: defaultApiUrl
+        if (next != apiUrl) {
+            apiUrl = next
+            api = next.takeIf { it.isNotBlank() }?.let { XalaneApi(it) }
+            identity.reset() // registrations belong to one server
+        }
+        load()
+    }
+
 
     private val json = Json { ignoreUnknownKeys = true }
     private val configDir = File(context.filesDir, "configs").apply { mkdirs() }
@@ -50,6 +65,7 @@ class ServerRepository(
                 config = config,
             )
         }
+        val api = api
         val remote = api?.let { a ->
             runCatching { a.servers() }.getOrNull()?.map { s ->
                 Server(

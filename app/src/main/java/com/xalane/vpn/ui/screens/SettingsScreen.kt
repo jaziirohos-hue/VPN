@@ -26,6 +26,10 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
@@ -70,12 +74,38 @@ fun SettingsScreen(
     onTheme: (ThemeMode) -> Unit,
     onOpenPremium: () -> Unit,
     onDeleteData: (() -> Unit)? = null,
+    apiUrl: String = "",
+    onApiUrl: (String?) -> Unit = {},
 ) {
     val c = X.colors
     val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(onImport) }
     val s = state.settings
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    var editAddress by rememberSaveable { mutableStateOf(false) }
+    var address by rememberSaveable(apiUrl) { mutableStateOf(apiUrl) }
+    if (editAddress) {
+        AlertDialog(
+            onDismissRequest = { editAddress = false },
+            title = { Text("Xalane server address") },
+            text = {
+                Column {
+                    Text("The address of your Xalane API, for example https://xalane.duckdns.org", color = c.muted, fontSize = 13.sp)
+                    OutlinedTextField(
+                        value = address,
+                        onValueChange = { address = it },
+                        singleLine = true,
+                        placeholder = { Text("https://") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                        modifier = Modifier.padding(top = 12.dp),
+                    )
+                }
+            },
+            confirmButton = { TextButton(onClick = { onApiUrl(address); editAddress = false }) { Text("Save") } },
+            dismissButton = { TextButton(onClick = { onApiUrl(null); editAddress = false }) { Text("Use default") } },
+            containerColor = c.surface, titleContentColor = c.text, textContentColor = c.muted,
+        )
+    }
     if (confirmDelete && onDeleteData != null) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
@@ -122,6 +152,11 @@ fun SettingsScreen(
         SectionLabel("Connection", Modifier.padding(top = 10.dp))
         XCard {
             NavItem(Icons.Rounded.Lock, "Protocol", "Fast, modern encryption", "WireGuard", onClick = null)
+            Divider()
+            NavItem(
+                Icons.Rounded.Dns, "Xalane server",
+                apiUrl.removePrefix("https://").removePrefix("http://").ifBlank { "Not set" }, null,
+            ) { address = apiUrl; editAddress = true }
             Divider()
             NavItem(Icons.Rounded.FileUpload, "Import WireGuard config", "Add a server from a .conf file", null) {
                 picker.launch(arrayOf("*/*"))

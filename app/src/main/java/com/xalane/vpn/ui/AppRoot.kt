@@ -112,6 +112,8 @@ fun AppRoot(vm: MainViewModel, state: UiState) {
                             onTheme = { vm.setTheme(it) },
                             onOpenPremium = { tab = Tab.PREMIUM },
                             onDeleteData = if (vm.hasApi) ({ vm.deleteMyData() }) else null,
+                            apiUrl = vm.apiUrl,
+                            onApiUrl = { vm.setApiUrl(it) },
                         )
                     }
                 }

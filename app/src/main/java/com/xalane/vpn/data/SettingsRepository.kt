@@ -18,6 +18,8 @@ data class AppSettings(
     val blockAds: Boolean = false,
     val selectedServerId: String = AUTO_SERVER_ID,
     val favorites: Set<String> = emptySet(),
+    /** Server address the user typed in Settings; null means the built-in default. */
+    val apiUrl: String? = null,
 )
 
 private val Context.dataStore by preferencesDataStore(name = "settings")
@@ -29,6 +31,7 @@ class SettingsRepository(private val context: Context) {
         val blockAds = booleanPreferencesKey("block_ads")
         val selected = stringPreferencesKey("selected_server")
         val favorites = stringSetPreferencesKey("favorites")
+        val apiUrl = stringPreferencesKey("api_url")
     }
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { p ->
@@ -38,6 +41,7 @@ class SettingsRepository(private val context: Context) {
             blockAds = p[Keys.blockAds] ?: false,
             selectedServerId = p[Keys.selected] ?: AUTO_SERVER_ID,
             favorites = p[Keys.favorites] ?: emptySet(),
+            apiUrl = p[Keys.apiUrl],
         )
     }
 
@@ -48,6 +52,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun setTheme(mode: ThemeMode) = edit { it[Keys.theme] = mode.name }
     suspend fun setAutoConnect(on: Boolean) = edit { it[Keys.autoConnect] = on }
     suspend fun setBlockAds(on: Boolean) = edit { it[Keys.blockAds] = on }
+    suspend fun setApiUrl(url: String?) = edit { if (url.isNullOrBlank()) it.remove(Keys.apiUrl) else it[Keys.apiUrl] = url }
     suspend fun select(id: String) = edit { it[Keys.selected] = id }
     suspend fun toggleFavorite(id: String) = edit { p ->
         val current = p[Keys.favorites] ?: emptySet()

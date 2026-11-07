@@ -250,9 +250,9 @@ private fun ServerRow(
 private fun EmptyServers(onImport: () -> Unit) {
     val c = X.colors
     Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp)) {
-        Text("No servers yet", color = c.text, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+        Text("No servers available", color = c.text, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
         Text(
-            "Add a server by importing a WireGuard config file (.conf) from your VPN provider or your own server.",
+            "Xalane servers can't be reached right now. Check your internet connection, or add a server by importing a WireGuard config file (.conf).",
             color = c.muted, fontSize = 14.sp, modifier = Modifier.padding(top = 6.dp, bottom = 16.dp),
         )
         Text(
