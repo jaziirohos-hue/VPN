@@ -64,6 +64,7 @@ fun ServersScreen(
     onPick: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onDelete: (String) -> Unit,
+    onImport: () -> Unit = {},
 ) {
     val c = X.colors
     var query by rememberSaveable { mutableStateOf("") }
@@ -146,7 +147,11 @@ fun ServersScreen(
             }
         }
 
-        if (filter == Filter.ALL && q.isEmpty()) {
+        if (state.servers.isEmpty()) {
+            item { EmptyServers(onImport) }
+        }
+
+        if (filter == Filter.ALL && q.isEmpty() && state.servers.isNotEmpty()) {
             item {
                 SectionLabel("Recommended")
                 val fastest = state.fastest
@@ -161,8 +166,8 @@ fun ServersScreen(
             }
         }
 
-        item { SectionLabel("All locations", trailing = locations.size.toString()) }
-        if (locations.isEmpty()) {
+        if (state.servers.any { !it.custom }) item { SectionLabel("All locations", trailing = locations.size.toString()) }
+        if (locations.isEmpty() && state.servers.any { !it.custom }) {
             item {
                 Text(
                     if (filter == Filter.FAVORITES) "No favorites yet. Tap the star next to a location to add it here." else "No locations match your search.",
@@ -237,5 +242,23 @@ private fun ServerRow(
         }
         LatencyIndicator(latency)
         trailing()
+    }
+}
+
+@Composable
+private fun EmptyServers(onImport: () -> Unit) {
+    val c = X.colors
+    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp)) {
+        Text("No servers yet", color = c.text, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+        Text(
+            "Add a server by importing a WireGuard config file (.conf) from your VPN provider or your own server.",
+            color = c.muted, fontSize = 14.sp, modifier = Modifier.padding(top = 6.dp, bottom = 16.dp),
+        )
+        Text(
+            "Import WireGuard config",
+            color = c.onAccent, fontWeight = FontWeight.SemiBold, fontSize = 15.sp,
+            modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(c.accent)
+                .clickable(role = Role.Button, onClick = onImport).padding(horizontal = 20.dp, vertical = 12.dp),
+        )
     }
 }

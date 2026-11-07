@@ -57,6 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xalane.vpn.AppFlags
 import com.xalane.vpn.data.Server
 import com.xalane.vpn.ui.theme.Figtree
 import com.xalane.vpn.ui.theme.Mono
@@ -157,7 +158,7 @@ fun PillNavBar(current: Tab, onSelect: (Tab) -> Unit, modifier: Modifier = Modif
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Tab.entries.forEach { tab ->
+        Tab.entries.filter { it != Tab.PREMIUM || AppFlags.demoContent }.forEach { tab ->
             val selected = tab == current
             val bg by animateColorAsState(if (selected) c.accent else c.raised.copy(alpha = 0.7f), label = "navbg")
             Row(

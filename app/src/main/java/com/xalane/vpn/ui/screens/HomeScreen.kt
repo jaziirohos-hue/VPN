@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xalane.vpn.AppFlags
 import com.xalane.vpn.ui.UiState
 import com.xalane.vpn.ui.components.CountryBadge
 import com.xalane.vpn.ui.components.DemoChip
@@ -91,7 +92,7 @@ fun HomeScreen(
             }
             Spacer(Modifier.width(8.dp))
             Text("Xalane", color = c.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.weight(1f))
-            Row(
+            if (AppFlags.demoContent) Row(
                 Modifier
                     .clip(RoundedCornerShape(50))
                     .background(c.warn.copy(alpha = 0.12f))
@@ -122,20 +123,25 @@ fun HomeScreen(
             CountryBadge(if (state.isAuto && !connected) null else shown, size = 42.dp)
             Column(Modifier.weight(1f)) {
                 Text(
-                    if (state.isAuto && !connected) "Fastest server" else shown?.country ?: "Choose a server",
+                    when {
+                        shown == null -> "Add your first server"
+                        state.isAuto && !connected -> "Fastest server"
+                        else -> shown.country
+                    },
                     color = c.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     val sub = when {
                         connected && state.publicIp != null -> "IP ${state.publicIp}"
-                        state.isAuto && !connected -> shown?.let { "Auto · ${it.city}" } ?: "Auto"
+                        shown == null -> "Import a WireGuard config"
+                        state.isAuto && !connected -> "Auto · ${shown.city}"
                         else -> shown?.city ?: ""
                     }
                     Text(sub, color = c.muted, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                     if (shown?.isDemo == true) DemoChip()
                 }
             }
-            LatencyIndicator(shown?.latencyMs)
+            if (shown != null) LatencyIndicator(shown.latencyMs)
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = c.muted)
         }
 

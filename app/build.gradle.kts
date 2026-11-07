@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -15,6 +17,22 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+        // Demo locations and the Premium screen. Off in release until real servers and billing exist.
+        buildConfigField("boolean", "DEMO_CONTENT", "true")
+    }
+
+    // Upload key for Google Play, read from keystore.properties (never committed).
+    val keystoreFile = rootProject.file("keystore.properties")
+    val releaseSigning = if (keystoreFile.exists()) {
+        val props = Properties().apply { keystoreFile.inputStream().use { load(it) } }
+        signingConfigs.create("release") {
+            storeFile = rootProject.file(props.getProperty("storeFile"))
+            storePassword = props.getProperty("storePassword")
+            keyAlias = props.getProperty("keyAlias")
+            keyPassword = props.getProperty("keyPassword")
+        }
+    } else {
+        null
     }
 
     buildTypes {
@@ -22,9 +40,9 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Signed with the debug key so the APK installs for testing.
-            // Replace with your own release key before publishing to Google Play.
-            signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("boolean", "DEMO_CONTENT", "false")
+            // Falls back to the debug key when keystore.properties is missing, so local release builds still install.
+            signingConfig = releaseSigning ?: signingConfigs.getByName("debug")
         }
     }
     compileOptions {

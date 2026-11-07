@@ -66,6 +66,8 @@ fun AppRoot(vm: MainViewModel, state: UiState) {
         }
     }
 
+    val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let { vm.import(it) } }
+
     BackHandler(enabled = !showSplash && tab != Tab.HOME) { tab = Tab.HOME }
 
     Box(Modifier.fillMaxSize().background(c.bg)) {
@@ -92,6 +94,7 @@ fun AppRoot(vm: MainViewModel, state: UiState) {
                             onPick = { vm.select(it); tab = Tab.HOME },
                             onToggleFavorite = { vm.toggleFavorite(it) },
                             onDelete = { vm.delete(it) },
+                            onImport = { importPicker.launch(arrayOf("*/*")) },
                         )
                         Tab.PREMIUM -> PremiumScreen(
                             onBack = { tab = Tab.HOME },

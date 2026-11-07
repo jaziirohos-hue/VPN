@@ -117,7 +117,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun canConnect(): Boolean {
         val target = state.value.target
         val problem = when {
-            target == null -> "No servers yet. Import a WireGuard config in Settings to connect."
+            target == null -> "No servers yet. Import a WireGuard config to connect."
             !target.canConnect -> "${target.country} is a Demo location and isn't live yet. Import your own WireGuard config in Settings to connect today."
             else -> null
         }

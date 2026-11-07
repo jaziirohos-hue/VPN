@@ -30,7 +30,7 @@ Requirements: JDK 17+ and the Android SDK (platform 35).
 
 The APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
-The release build (`./gradlew assembleRelease`) is currently signed with the debug key so it installs for testing. Create your own signing key before publishing to Google Play.
+For Google Play, build the signed bundle with `./gradlew bundleRelease`. It is signed with the upload key from `keystore.properties` (kept out of git); without that file, release builds fall back to the debug key. The release build hides Demo locations and the Premium screen. See [docs/play-store](docs/play-store/README.md) for the full publishing guide.
 
 ## Tests
 

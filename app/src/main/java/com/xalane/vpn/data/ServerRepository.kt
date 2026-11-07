@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.wireguard.config.Config
+import com.xalane.vpn.AppFlags
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -28,7 +29,7 @@ class ServerRepository(private val context: Context) {
     suspend fun load() = withContext(Dispatchers.IO) {
         val bundled = context.assets.open("servers.json").use { input ->
             json.decodeFromString<List<ServerDto>>(input.readBytes().decodeToString())
-        }.map { dto ->
+        }.filter { AppFlags.demoContent || it.wireguardConfig != null }.map { dto ->
             val config = dto.wireguardConfig?.let { text ->
                 runCatching { Config.parse(text.byteInputStream()) }.getOrNull()
             }

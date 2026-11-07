@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xalane VPN Privacy Policy</title>
+<style>
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;color:#0E1726;background:#fff;max-width:720px;margin:0 auto;padding:32px 20px}
+  h1{font-size:28px;margin:0 0 4px}h2{font-size:19px;margin-top:28px}p,li{color:#333}.muted{color:#667185}
+</style>
+</head>
+<body>
+<h1>Xalane VPN Privacy Policy</h1>
+<p class="muted">Effective date: [DATE]</p>
+
+<p>Xalane VPN ("the app") is an Android VPN client. This policy explains what happens to your information when you use it. In short: the app has no accounts, no analytics and no ads, and we do not collect, sell or share your personal data.</p>
+
+<h2>Information we do not collect</h2>
+<ul>
+  <li>We do not log or see the websites you visit, your DNS queries, or the content of your traffic.</li>
+  <li>We do not collect your name, email address, phone number, contacts, location or device identifiers.</li>
+  <li>The app contains no analytics, advertising or crash-reporting software.</li>
+</ul>
+
+<h2>How the VPN works</h2>
+<p>The app uses Android's VpnService and the WireGuard protocol to create an encrypted tunnel from your device to a VPN server. In this version, you choose the server by importing a WireGuard configuration file. Your traffic goes to that server, which is operated by you or by the provider who gave you the file, not by Xalane. That server's operator is responsible for how it handles your traffic.</p>
+
+<h2>Information stored on your device</h2>
+<p>Your imported WireGuard configuration files and your app settings (selected server, favorites, theme, auto-connect and ad-blocking choices) are stored only on your device. They are deleted when you remove a server or uninstall the app. App backup to the cloud is turned off.</p>
+
+<h2>Network requests the app makes</h2>
+<ul>
+  <li><strong>Public IP check.</strong> To show your current IP address on the Home screen, the app sends a request to <code>api.ipify.org</code>, a third-party service. That service necessarily sees your IP address when it answers. The app does not store the result.</li>
+  <li><strong>Server latency.</strong> The app may contact the servers in your imported configurations to measure response time.</li>
+  <li><strong>Ad and tracker blocking (optional).</strong> If you turn this on, DNS queries made while connected are sent to AdGuard DNS (<code>94.140.14.14</code>, <code>94.140.15.15</code>), which blocks known ad and tracker domains. AdGuard's own privacy policy applies to that service.</li>
+</ul>
+
+<h2>Children</h2>
+<p>The app is not directed at children under 13 and does not knowingly collect information from them.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, for example when Xalane-operated servers or subscriptions are added, we will update this page and the effective date above.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy: [CONTACT EMAIL]</p>
+</body>
+</html>

@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xalane.vpn.AppFlags
 import com.xalane.vpn.BuildConfig
 import com.xalane.vpn.data.ThemeMode
 import com.xalane.vpn.ui.UiState
@@ -89,7 +90,7 @@ fun SettingsScreen(
                 Text("Free plan", color = c.text, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                 Text("No account needed", color = c.muted, fontSize = 12.5.sp)
             }
-            Text(
+            if (AppFlags.demoContent) Text(
                 "Upgrade",
                 color = c.onAccent,
                 fontWeight = FontWeight.SemiBold,
