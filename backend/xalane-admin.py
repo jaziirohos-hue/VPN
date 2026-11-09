@@ -48,6 +48,11 @@ def main():
     a.add_argument("--streaming", action="store_true")
     sub.add_parser("list", help="List servers")
     sub.add_parser("stats", help="Show device and peer counts")
+    u = sub.add_parser("update", help="Change a server's address, key or capacity")
+    u.add_argument("id")
+    u.add_argument("--host")
+    u.add_argument("--public-key")
+    u.add_argument("--capacity", type=int)
     for name in ("enable", "disable", "delete", "rotate-token"):
         sub.add_parser(name).add_argument("id")
     args = p.parse_args()
@@ -70,6 +75,12 @@ def main():
                   f"active {s['active_peers']}/{s['capacity']}  allocated {s['allocated_peers']}")
     elif args.cmd == "stats":
         print(json.dumps(call("GET", "/v1/admin/stats"), indent=2))
+    elif args.cmd == "update":
+        body = {k: v for k, v in {"endpoint_host": args.host, "public_key": args.public_key, "capacity": args.capacity}.items() if v is not None}
+        if not body:
+            sys.exit("Nothing to update. Use --host, --public-key or --capacity.")
+        call("PATCH", f"/v1/admin/servers/{args.id}", body)
+        print(f"{args.id} updated.")
     elif args.cmd in ("enable", "disable"):
         call("PATCH", f"/v1/admin/servers/{args.id}", {"enabled": args.cmd == "enable"})
         print(f"{args.id} {args.cmd}d.")

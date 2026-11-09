@@ -23,7 +23,6 @@ apt-get install -y -qq wireguard iptables python3 >/dev/null
 echo "==> Enabling IP forwarding"
 cat >/etc/sysctl.d/99-xalane.conf <<SYSCTL
 net.ipv4.ip_forward=1
-net.ipv6.conf.all.forwarding=1
 SYSCTL
 sysctl -q --system
 
@@ -34,17 +33,27 @@ if [ ! -f /etc/wireguard/server.key ]; then
   wg genkey | tee /etc/wireguard/server.key | wg pubkey >/etc/wireguard/server.pub
 fi
 
+# Network form of TUNNEL_ADDR, e.g. 10.8.0.1/22 -> 10.8.0.0/22
+TUNNEL_NET="$(python3 -c "import ipaddress,sys;print(ipaddress.ip_interface(sys.argv[1]).network)" "$TUNNEL_ADDR")"
+install -m 755 "${HERE}/xalane-firewall.sh" /opt/xalane/xalane-firewall.sh
+
 echo "==> Writing /etc/wireguard/${WG_IF}.conf"
+OLD_SUM="$(sha256sum /etc/wireguard/${WG_IF}.conf 2>/dev/null || true)"
 cat >/etc/wireguard/${WG_IF}.conf <<WG
 [Interface]
 Address = ${TUNNEL_ADDR}
 ListenPort = ${WG_PORT}
 PrivateKey = $(cat /etc/wireguard/server.key)
 # Peers are added by the Xalane agent; do not list them here.
-PostUp = iptables -t nat -A POSTROUTING -s ${TUNNEL_ADDR} -o ${OUT_IF} -j MASQUERADE; iptables -A FORWARD -i ${WG_IF} -j ACCEPT; iptables -A FORWARD -o ${WG_IF} -m state --state RELATED,ESTABLISHED -j ACCEPT
-PostDown = iptables -t nat -D POSTROUTING -s ${TUNNEL_ADDR} -o ${OUT_IF} -j MASQUERADE; iptables -D FORWARD -i ${WG_IF} -j ACCEPT; iptables -D FORWARD -o ${WG_IF} -m state --state RELATED,ESTABLISHED -j ACCEPT
+# Internet access only: see /opt/xalane/xalane-firewall.sh
+PostUp = /opt/xalane/xalane-firewall.sh up ${WG_IF} ${TUNNEL_NET} ${OUT_IF}
+PostDown = /opt/xalane/xalane-firewall.sh down ${WG_IF} ${TUNNEL_NET} ${OUT_IF}
 WG
 systemctl enable --now wg-quick@${WG_IF} >/dev/null
+if [ -n "$OLD_SUM" ] && [ "$OLD_SUM" != "$(sha256sum /etc/wireguard/${WG_IF}.conf)" ]; then
+  # Config changed on a re-run: apply it. The agent re-adds peers within seconds.
+  systemctl restart wg-quick@${WG_IF}
+fi
 
 if command -v ufw >/dev/null && ufw status | grep -q active; then
   ufw allow "${WG_PORT}/udp" >/dev/null

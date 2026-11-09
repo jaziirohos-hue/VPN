@@ -31,6 +31,8 @@ Interactive docs are at `/docs` once the API runs.
 
 Housekeeping runs hourly: tunnel addresses unused for `PEER_TTL_DAYS` (30) are freed, and phones inactive for `DEVICE_TTL_DAYS` (180) are deleted.
 
+**First deployment:** follow [docs/deploy-first-server.md](../docs/deploy-first-server.md) for step-by-step setup, checks and troubleshooting.
+
 **Want it free?** Follow [docs/free-server-guide.md](../docs/free-server-guide.md): one free Oracle Cloud server runs both the API and a VPN server, set up by `setup-free-server.sh`.
 
 ## 1. Deploy the API
@@ -125,4 +127,4 @@ ADMIN_TOKEN=dev .venv/bin/uvicorn app.main:app --reload
 | `NODE_TIMEOUT_SECONDS` | `90` | How long a node counts as online after a heartbeat |
 | `PEER_TTL_DAYS` | `30` | Free unused tunnel addresses after this |
 | `DEVICE_TTL_DAYS` | `180` | Delete inactive phones after this |
-| `REGISTER_LIMIT_PER_HOUR` | `20` | Registrations per IP per hour |
+| `REGISTER_LIMIT_PER_HOUR` | `200` | Registrations per IP per hour (mobile networks share IPs) |

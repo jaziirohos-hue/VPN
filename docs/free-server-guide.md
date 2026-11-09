@@ -1,10 +1,12 @@
 # Run Xalane VPN for free
 
+For the complete deployment, verification and troubleshooting guide (including a paid Lightsail option and home servers), see [deploy-first-server.md](deploy-first-server.md).
+
 This guide puts the whole Xalane backend (the API and one VPN server) on **one free server** from Oracle Cloud, with a free web address from DuckDNS. Cost: $0.
 
 ## What you get for free
 
-- **Oracle Cloud Always Free:** an ARM server with up to 4 CPUs, 24 GB memory and **10 TB of traffic a month**. It never expires.
+- **Oracle Cloud Always Free:** an ARM server with up to **2 CPUs and 12 GB memory** in total, and **10 TB of outbound traffic a month**. It never expires.
 - **DuckDNS:** a free web address such as `xalane.duckdns.org`, with free HTTPS.
 
 **Limits:**
@@ -25,7 +27,7 @@ This guide puts the whole Xalane backend (the API and one VPN server) on **one f
 
 1. In the Oracle console, open **Compute → Instances → Create instance**.
 2. **Image:** *Canonical Ubuntu 24.04*.
-3. **Shape:** *Ampere → VM.Standard.A1.Flex*, 2 OCPU and 12 GB memory. If that's out of capacity, use *VM.Standard.E2.1.Micro*.
+3. **Shape:** *Ampere → VM.Standard.A1.Flex*, at most 2 OCPU and 12 GB memory (the current free limit). If that's out of capacity, use *VM.Standard.E2.1.Micro*.
 4. **Networking:** keep *Assign a public IPv4 address* turned on.
 5. **SSH keys:** choose *Generate a key pair* and **download the private key**. You need it to log in.
 6. Click **Create**. After a minute, copy the server's **Public IP address**.
@@ -92,7 +94,7 @@ The app then lists your free server and connects with one tap.
 ```bash
 cd ~/VPN
 export XALANE_API_URL=http://127.0.0.1:8000
-export XALANE_ADMIN_TOKEN=$(grep ADMIN_TOKEN backend/deploy/.env | cut -d= -f2)
+export XALANE_ADMIN_TOKEN=$(sudo grep ADMIN_TOKEN backend/deploy/.env | cut -d= -f2)
 python3 backend/xalane-admin.py list      # is the VPN server online?
 python3 backend/xalane-admin.py stats     # how many phones are registered
 sudo journalctl -u xalane-agent -f        # VPN agent log

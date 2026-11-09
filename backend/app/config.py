@@ -20,8 +20,8 @@ class Settings:
     peer_ttl_days: int = field(default_factory=lambda: int(os.getenv("PEER_TTL_DAYS", "30")))
     # Devices inactive for this many days are deleted.
     device_ttl_days: int = field(default_factory=lambda: int(os.getenv("DEVICE_TTL_DAYS", "180")))
-    # Device registrations allowed per client IP per hour.
-    register_limit_per_hour: int = field(default_factory=lambda: int(os.getenv("REGISTER_LIMIT_PER_HOUR", "20")))
+    # Device registrations allowed per client IP per hour. Mobile networks put many phones behind one IP (CGNAT).
+    register_limit_per_hour: int = field(default_factory=lambda: int(os.getenv("REGISTER_LIMIT_PER_HOUR", "200")))
 
 
 def get_settings() -> Settings:
