@@ -135,6 +135,7 @@ For a home server with a changing IP add `ENDPOINT_HOST=xalane.duckdns.org` befo
 | # | Where | Command / action | Expected |
 |---|---|---|---|
 | 1 | [Your computer] | `curl -sS https://xalane.duckdns.org/health` | `{"status":"ok"}` and **no** certificate warning |
+| 1b | [Your computer] | Open `https://xalane.duckdns.org/privacy` in a browser | The privacy policy page (use this URL in Play Console) |
 | 2 | [Your computer] | `curl -sS https://xalane.duckdns.org/v1/servers` | One server with `"online":true` |
 | 2b | [Server] | `cd ~/VPN && export XALANE_API_URL=http://127.0.0.1:8000 XALANE_ADMIN_TOKEN=$(sudo grep ADMIN_TOKEN backend/deploy/.env \| cut -d= -f2) && python3 backend/xalane-admin.py list` | Your server, `online` |
 | 3 | [Phone] | Turn off Wi-Fi (use Somali mobile data). Open Xalane → choose the server → big button → accept Android's VPN prompt | "Connection secure", timer running, speeds moving |
@@ -143,6 +144,7 @@ For a home server with a changing IP add `ENDPOINT_HOST=xalane.duckdns.org` befo
 | 6 | [Phone] | Open `https://dnsleaktest.com` → *Standard test* | Only Cloudflare (or AdGuard if *Block ads* is on), not your mobile operator |
 | 7 | [Phone] | Open `https://test-ipv6.com` while connected | "No IPv6" (intended: IPv6 is sent into the tunnel and dropped, so it can't leak around the VPN) |
 | 8 | [Server] | `sudo reboot`, wait 2 minutes, reconnect with SSH | Checks 1, 2 and 3 pass again without doing anything |
+| 9 | [Phone] | Android *Settings → Network → VPN → Xalane VPN (gear)*: turn on **Always-on VPN** and **Block connections without VPN**. Restart the phone | Xalane connects by itself after restart; with the VPN off, no app has internet |
 
 ## 5. Troubleshooting
 

@@ -4,6 +4,7 @@ Phones register anonymously, list servers and ask for a tunnel on a server.
 VPN nodes poll for the peers they should allow and report a heartbeat.
 """
 import asyncio
+import html
 import ipaddress
 import logging
 import time
@@ -11,8 +12,10 @@ import uuid
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
 from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -138,6 +141,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/health")
     def health():
         return {"status": "ok"}
+
+    privacy_page = (
+        (Path(__file__).parent / "static" / "privacy.html").read_text(encoding="utf-8")
+        .replace("{effective_date}", html.escape(settings.privacy_effective_date))
+        .replace("{contact}", html.escape(settings.privacy_contact))
+    )
+
+    @app.get("/privacy", response_class=HTMLResponse, include_in_schema=False)
+    def privacy():
+        """Public privacy policy, linked from the app and from Google Play."""
+        return privacy_page
 
     @app.post("/v1/devices", response_model=schemas.RegisterResponse, status_code=201)
     def register(body: schemas.RegisterRequest, request: Request, db: Session = Depends(get_db)):

@@ -27,6 +27,11 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -58,6 +63,7 @@ import com.xalane.vpn.ui.theme.X
 
 private enum class Filter(val label: String) { ALL("All"), FASTEST("Fastest"), FAVORITES("Favorites"), STREAMING("Streaming") }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServersScreen(
     state: UiState,
@@ -65,6 +71,7 @@ fun ServersScreen(
     onToggleFavorite: (String) -> Unit,
     onDelete: (String) -> Unit,
     onImport: () -> Unit = {},
+    onRefresh: suspend () -> Unit = {},
 ) {
     val c = X.colors
     var query by rememberSaveable { mutableStateOf("") }
@@ -85,6 +92,19 @@ fun ServersScreen(
     val selectedId = state.settings.selectedServerId
     val anyDemo = state.servers.any { it.isDemo }
 
+    val scope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+
+    PullToRefreshBox(
+        isRefreshing = refreshing,
+        onRefresh = {
+            scope.launch {
+                refreshing = true
+                try { onRefresh() } finally { refreshing = false }
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+    ) {
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             ScreenTitle("Locations") { if (anyDemo) DemoChip("DEMO LATENCY") }
@@ -195,6 +215,8 @@ fun ServersScreen(
                 )
             }
         }
+    }
+
     }
 
     confirmDelete?.let { id ->

@@ -158,6 +158,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun refreshServers() = viewModelScope.launch { serverRepo.load() }
 
+    /** Reloads the server list and returns when done (for pull-to-refresh). */
+    suspend fun refreshServersNow() = serverRepo.load()
+
     val hasApi: Boolean get() = serverRepo.hasApi
     val apiUrl: String get() = serverRepo.apiUrl
     val defaultApiUrl: String get() = com.xalane.vpn.BuildConfig.API_BASE_URL

@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Policy
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.HorizontalDivider
@@ -196,6 +197,15 @@ fun SettingsScreen(
             }
             NavItem(Icons.Rounded.DarkMode, "Theme", "Tap to switch", label) { onTheme(next) }
             Divider()
+            if (apiUrl.isNotBlank()) {
+                NavItem(Icons.Rounded.Policy, "Privacy policy", "What Xalane stores and why", null) {
+                    try {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(apiUrl.trimEnd('/') + "/privacy")))
+                    } catch (_: ActivityNotFoundException) {
+                    }
+                }
+                Divider()
+            }
             NavItem(Icons.Rounded.Info, "About", "Xalane VPN", "v${BuildConfig.VERSION_NAME}", onClick = null)
         }
     }

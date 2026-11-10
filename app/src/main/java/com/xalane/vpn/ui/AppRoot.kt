@@ -30,6 +30,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import com.xalane.vpn.ui.components.PillNavBar
 import com.xalane.vpn.ui.components.Tab
 import com.xalane.vpn.ui.screens.HomeScreen
@@ -72,6 +76,17 @@ fun AppRoot(vm: MainViewModel, state: UiState) {
         if (tab == Tab.SERVERS) vm.refreshServers()
     }
 
+    // Keep server online status fresh while the app is on screen
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                delay(60_000)
+                vm.refreshServers()
+            }
+        }
+    }
+
     BackHandler(enabled = !showSplash && tab != Tab.HOME) { tab = Tab.HOME }
 
     Box(Modifier.fillMaxSize().background(c.bg)) {
@@ -99,6 +114,7 @@ fun AppRoot(vm: MainViewModel, state: UiState) {
                             onToggleFavorite = { vm.toggleFavorite(it) },
                             onDelete = { vm.delete(it) },
                             onImport = { importPicker.launch(arrayOf("*/*")) },
+                            onRefresh = { vm.refreshServersNow() },
                         )
                         Tab.PREMIUM -> PremiumScreen(
                             onBack = { tab = Tab.HOME },

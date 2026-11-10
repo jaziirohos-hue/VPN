@@ -21,6 +21,9 @@ class Settings:
     # Devices inactive for this many days are deleted.
     device_ttl_days: int = field(default_factory=lambda: int(os.getenv("DEVICE_TTL_DAYS", "180")))
     # Device registrations allowed per client IP per hour. Mobile networks put many phones behind one IP (CGNAT).
+    # Shown on the public privacy policy page (/privacy)
+    privacy_contact: str = field(default_factory=lambda: os.getenv("PRIVACY_CONTACT", "Contact us through the Xalane VPN listing on Google Play."))
+    privacy_effective_date: str = field(default_factory=lambda: os.getenv("PRIVACY_EFFECTIVE_DATE", "10 November 2026"))
     register_limit_per_hour: int = field(default_factory=lambda: int(os.getenv("REGISTER_LIMIT_PER_HOUR", "200")))
 
 

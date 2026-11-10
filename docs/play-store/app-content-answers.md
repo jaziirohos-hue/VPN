@@ -3,7 +3,7 @@
 These answers match what version 1.0.0 actually does. Check them before you submit.
 
 ## Privacy policy
-Paste the public URL of `privacy-policy.html`. Fill in `[DATE]` and `[CONTACT EMAIL]` first.
+Use `https://xalane.duckdns.org/privacy` (served by your API). Set `PRIVACY_CONTACT` in `backend/deploy/.env` first.
 
 ## Ads
 **Does your app contain ads?** No.

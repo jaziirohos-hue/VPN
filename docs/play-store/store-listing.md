@@ -37,7 +37,7 @@ Xalane VPN uses Android's VpnService to create an encrypted tunnel to the server
 **App category:** Tools
 **Tags (suggested):** VPN, Privacy, Security
 **Contact email:** your support email (required)
-**Privacy policy URL:** where you host `privacy-policy.html` (required for VPN apps)
+**Privacy policy URL:** `https://xalane.duckdns.org/privacy` (served by your API; use your own domain if different)
 
 ## Graphics (in `graphics/`)
 

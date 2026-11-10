@@ -129,3 +129,16 @@ def test_registration_rate_limit(tmp_path):
 def test_endpoint_formats_ipv6():
     assert endpoint("203.0.113.10", 51820) == "203.0.113.10:51820"
     assert endpoint("2001:db8::1", 51820) == "[2001:db8::1]:51820"
+
+
+def test_privacy_page(tmp_path):
+    from fastapi.testclient import TestClient
+    from app.config import Settings
+    from app.main import create_app
+    app = create_app(Settings(database_url=f"sqlite:///{tmp_path/'p.db'}", privacy_contact="help@example.com <x>"))
+    with TestClient(app) as c:
+        r = c.get("/privacy")
+        assert r.status_code == 200 and r.headers["content-type"].startswith("text/html")
+        assert "Xalane VPN Privacy Policy" in r.text
+        assert "help@example.com &lt;x&gt;" in r.text
+        assert "{contact}" not in r.text and "{effective_date}" not in r.text

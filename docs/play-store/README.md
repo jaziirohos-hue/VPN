@@ -10,14 +10,14 @@ Everything needed for Play Console is in this folder, except the signed files an
 | Upload key | `keystore/xalane-upload.jks` + `keystore.properties` (not in git; keep them safe) |
 | Store listing text | [store-listing.md](store-listing.md) |
 | Policy and form answers | [app-content-answers.md](app-content-answers.md) |
-| Privacy policy | [privacy-policy.html](privacy-policy.html) |
+| Privacy policy | Served by the API at `https://YOUR_DOMAIN/privacy` (source: `backend/app/static/privacy.html`) |
 | Icon, feature graphic, screenshots | [graphics/](graphics/) |
 
 ## Steps
 
 1. **Developer account.** Sign up at play.google.com/console (one-time $25 fee) and verify your identity.
 2. **Create app.** Name `Xalane VPN`, default language English, type *App*, *Free*.
-3. **Host the privacy policy.** Fill in the date and contact email in `privacy-policy.html`, then put it on any public web page (for example GitHub Pages or Google Sites) and copy the link.
+3. **Privacy policy.** Your API publishes it at `https://xalane.duckdns.org/privacy`. Set `PRIVACY_CONTACT` (a support email or contact line) in `backend/deploy/.env`, run `docker compose up -d`, and use that URL in Play Console.
 4. **App content.** Complete every item under *Policy → App content* using [app-content-answers.md](app-content-answers.md), including the VPN service declaration and Data safety.
 5. **Store listing.** Paste the text from [store-listing.md](store-listing.md) and upload the images from `graphics/`.
 6. **Testing track first.** Go to *Test and release → Testing → Closed testing*, create a release and upload `app-release.aab`. Keep **Play App Signing** turned on (Google holds the final signing key; your file is only the upload key).
