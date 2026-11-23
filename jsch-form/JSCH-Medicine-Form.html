@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="so"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JSCH – Medicine Price List</title>
+<style>
+:root{--navy:#13204a;--green:#1f7a3e;--red:#8a1020;--bg:#f3f6f5;--line:#cfd8d4;--muted:#5b6b66}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:"Segoe UI",Arial,sans-serif;font-size:15px}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 40px}
+.brand{display:flex;align-items:center;justify-content:center;gap:16px;padding-bottom:12px;border-bottom:5px solid var(--green)}
+.brand .emb{width:84px;height:84px}
+.brand h1{margin:0;font-size:2.2rem;letter-spacing:2px;font-weight:800;line-height:1}
+.brand h2{margin:4px 0 0;font-size:.95rem;color:var(--green);letter-spacing:1px}
+.brand h3{margin:3px 0 0;font-size:.85rem;color:var(--red)}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;margin-top:18px}
+.card h4{margin:0 0 12px;font-size:1.05rem}
+form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.full{grid-column:1/-1}
+label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fbfcfc;color:var(--navy)}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.bar{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.profit{font-weight:600;color:var(--muted)}.profit b{color:var(--green)}.profit b.neg{color:var(--red)}
+button{font:inherit;font-weight:600;border:1px solid transparent;border-radius:7px;padding:10px 16px;cursor:pointer}
+.pri{background:var(--green);color:#fff}.pri:disabled{opacity:.45;cursor:not-allowed}
+.sec{background:#fff;border-color:var(--line);color:var(--navy)}
+.dang{background:#fff;border-color:var(--line);color:var(--red)}
+.msg{grid-column:1/-1;margin:0;min-height:1.2em;font-size:.9rem}.msg.err{color:var(--red)}.msg.ok{color:var(--green)}
+.head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.head h4{margin:0}.count{font-weight:700}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{background:var(--navy);color:#fff;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.4px;padding:8px}
+td{border:1px solid var(--line);padding:7px 8px;height:34px}
+tbody tr:nth-child(even) td{background:#f2f6f3}
+td.n{text-align:right;font-variant-numeric:tabular-nums}td.no{text-align:center;color:var(--muted);width:40px}
+td.neg{color:var(--red)}
+tfoot td{font-weight:700;background:#e9efec}
+.act{white-space:nowrap;text-align:right}.act button{padding:4px 9px;font-size:.8rem}
+.foot{margin-top:20px;border-top:5px solid var(--green);padding-top:10px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.sig{display:flex;gap:24px;flex:1}.sig div{flex:1;min-width:140px;border-bottom:1px solid var(--navy);padding-bottom:18px;color:var(--muted);font-size:.85rem}
+.mini{display:flex;align-items:center;gap:8px;font-weight:800}.mini .emb{width:44px;height:44px}.mini small{display:block;font-size:.65rem;color:var(--green)}
+.printtitle{display:none}
+@media (max-width:560px){form{grid-template-columns:1fr}.brand h1{font-size:1.6rem}.brand .emb{width:60px;height:60px}}
+@media print{
+ @page{size:A4;margin:10mm}
+ body{background:#fff;font-size:11pt}.wrap{padding:0;max-width:none}
+ .entry,.tools,.act,.actcol,.msg,.hint{display:none!important}
+ .card{border:0;padding:0;margin-top:8px}
+ .printtitle{display:flex;justify-content:space-between;margin:6px 0}
+ th,tbody tr:nth-child(even) td,tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ td{height:24px;padding:3px 6px}
+}
+</style></head><body><div class="wrap">
+<div class="brand"><svg class="emb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <path d="M60 165 A78 78 0 1 1 148 162" fill="none" stroke="#1f7a3e" stroke-width="9" stroke-linecap="butt" stroke-dasharray="380 22 60 400"/>
+  <path d="M72 162 A78 78 0 0 0 128 166" fill="none" stroke="#1f7a3e" stroke-width="9"/>
+  <path d="M100 42 c-6-9-20-6-20 4 c0 9 12 15 20 22 c8-7 20-13 20-22 c0-10-14-13-20-4z" fill="#8a1020"/>
+  <path d="M100 95 c-12-18-40-12-40 8 c0 18 24 30 40 44 c16-14 40-26 40-44 c0-20-28-26-40-8z" fill="#8a1020"/>
+  <path d="M72 82 c-20 2-26 26-10 44 c10 11 24 18 38 30 c14-12 28-19 38-30 c16-18 10-42-10-44" fill="none" stroke="#13204a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M100 152 c-10 6-10 12 0 18 c10 6 10 12 0 18 M100 152 c10 6 10 12 0 18 c-10 6-10 12 0 18" fill="none" stroke="#13204a" stroke-width="5"/>
+  <circle cx="100" cy="190" r="5" fill="none" stroke="#13204a" stroke-width="4"/>
+  <path d="M64 150 L40 168" stroke="#8a1020" stroke-width="9" stroke-linecap="square"/>
+  <path d="M136 150 L160 168" stroke="#8a1020" stroke-width="9" stroke-linecap="square"/>
+</svg>
+<div><h1>JAZEERA</h1><h2>SPECIALIST COMMUNITY HOSPITAL</h2><h3>(JSCH) — Pharmacy</h3></div></div>
+
+<div class="card entry">
+ <h4 id="ftitle">Dawo cusub ku dar</h4>
+ <form id="f" novalidate>
+  <div class="full"><label for="name">Name</label><input id="name" placeholder="tusaale: Amoxicillin 500mg" autocomplete="off"></div>
+  <div><label for="dosage">Dosage form</label><select id="dosage"><option value="">— Dooro —</option>
+   <option>Tablet</option><option>Capsule</option><option>Syrup</option><option>Suspension</option><option>Injection</option><option>Cream</option><option>Ointment</option><option>Drops</option><option>Inhaler</option><option>Suppository</option><option>Powder</option><option>Other</option></select></div>
+  <div><label for="unit">Unit</label><select id="unit"><option value="">— Dooro —</option>
+   <option>Box</option><option>Strip</option><option>Piece</option><option>Bottle</option><option>Vial</option><option>Ampoule</option><option>Tube</option><option>Sachet</option><option>Pack</option></select></div>
+  <div><label for="cost">Cost price ($)</label><input id="cost" type="number" min="0" step="0.01" placeholder="0.00"></div>
+  <div><label for="sell">Sell price ($)</label><input id="sell" type="number" min="0" step="0.01" placeholder="0.00"></div>
+  <div class="bar"><span class="profit" id="profit">Faa'iido: —</span>
+   <span><button type="button" class="sec" id="cancel" hidden>Jooji</button> <button type="submit" class="pri" id="save">Ku dar liiska</button></span></div>
+  <p class="msg" id="msg"></p>
+ </form>
+</div>
+
+<div class="card">
+ <div class="printtitle"><b>MEDICINE PRICE LIST</b><span id="pdate"></span></div>
+ <div class="head"><h4>Liiska dawooyinka — <span class="count" id="count">0 / 30</span></h4>
+  <div class="tools">
+   <button class="sec" id="print">🖨 Daabac</button>
+   <button class="sec" id="excel">⬇ Excel u soo deji</button>
+   <button class="dang" id="clear">Tirtir dhammaan</button>
+  </div></div>
+ <div class="tbl"><table>
+  <thead><tr><th>No.</th><th>Name</th><th>Dosage form</th><th>Unit</th><th>Cost price</th><th>Sell price</th><th>Profit</th><th class="actcol"></th></tr></thead>
+  <tbody id="rows"></tbody>
+  <tfoot><tr><td></td><td colspan="3">TOTAL</td><td class="n" id="tc"></td><td class="n" id="ts"></td><td class="n" id="tp"></td><td class="actcol"></td></tr></tfoot>
+ </table></div>
+ <p class="hint" style="color:var(--muted);font-size:.85rem;margin:10px 0 0">Xogta waxay ku kaydsantahay kombiyuutarkan (browser-kan). Si aad kombiyuutar kale ugu gudbiso, riix “Excel u soo deji”.</p>
+</div>
+
+<div class="foot"><div class="sig"><div>Prepared by:</div><div>Signature:</div></div>
+ <div class="mini"><svg class="emb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <path d="M60 165 A78 78 0 1 1 148 162" fill="none" stroke="#1f7a3e" stroke-width="9" stroke-linecap="butt" stroke-dasharray="380 22 60 400"/>
+  <path d="M72 162 A78 78 0 0 0 128 166" fill="none" stroke="#1f7a3e" stroke-width="9"/>
+  <path d="M100 42 c-6-9-20-6-20 4 c0 9 12 15 20 22 c8-7 20-13 20-22 c0-10-14-13-20-4z" fill="#8a1020"/>
+  <path d="M100 95 c-12-18-40-12-40 8 c0 18 24 30 40 44 c16-14 40-26 40-44 c0-20-28-26-40-8z" fill="#8a1020"/>
+  <path d="M72 82 c-20 2-26 26-10 44 c10 11 24 18 38 30 c14-12 28-19 38-30 c16-18 10-42-10-44" fill="none" stroke="#13204a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M100 152 c-10 6-10 12 0 18 c10 6 10 12 0 18 M100 152 c10 6 10 12 0 18 c-10 6-10 12 0 18" fill="none" stroke="#13204a" stroke-width="5"/>
+  <circle cx="100" cy="190" r="5" fill="none" stroke="#13204a" stroke-width="4"/>
+  <path d="M64 150 L40 168" stroke="#8a1020" stroke-width="9" stroke-linecap="square"/>
+  <path d="M136 150 L160 168" stroke="#8a1020" stroke-width="9" stroke-linecap="square"/>
+</svg>
+<div>JAZEERA<small>SPECIALIST COMMUNITY HOSPITAL (JSCH)</small></div></div></div>
+</div>
+<script>
+const MAX=30,KEY="jsch-medicine-list";
+const $=id=>document.getElementById(id);
+let items=[],editId=null,confirmClear=false,confirmDel=null;
+try{items=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){msg("Lama kaydin karo browser-kan.","err")}};
+const m=v=>"$"+Number(v).toFixed(2);
+const msg=(t,k)=>{$("msg").textContent=t;$("msg").className="msg "+(k||"")};
+function prof(){const c=parseFloat($("cost").value),s=parseFloat($("sell").value);
+ $("profit").innerHTML=isNaN(c)||isNaN(s)?"Faa'iido: —":`Faa'iido: <b class="${s-c<0?'neg':''}">${m(s-c)}</b>`}
+$("cost").oninput=$("sell").oninput=prof;
+function render(){
+ const tb=$("rows");tb.innerHTML="";let tc=0,ts=0;
+ for(let i=0;i<MAX;i++){const it=items[i];const tr=document.createElement("tr");
+  const td=(t,c)=>{const d=document.createElement("td");if(c)d.className=c;d.textContent=t;tr.appendChild(d);return d};
+  td(i+1,"no");
+  if(it){tc+=it.cost;ts+=it.sell;const p=it.sell-it.cost;
+   td(it.name);td(it.dosage);td(it.unit);td(m(it.cost),"n");td(m(it.sell),"n");td(m(p),"n"+(p<0?" neg":""));
+   const a=td("","act actcol");
+   const e=document.createElement("button");e.className="sec";e.textContent="Beddel";e.onclick=()=>edit(i);
+   const d=document.createElement("button");d.className="dang";
+   if(confirmDel===i){d.textContent="Haa, tirtir";d.onclick=()=>{items.splice(i,1);confirmDel=null;if(editId!==null)reset();save();render();msg("Waa la tirtiray.","ok")}}
+   else{d.textContent="Tirtir";d.onclick=()=>{confirmDel=i;render()}}
+   a.append(e," ",d);
+  }else{for(let k=0;k<6;k++)td("");td("","actcol")}
+  tb.appendChild(tr)}
+ $("tc").textContent=items.length?m(tc):"";$("ts").textContent=items.length?m(ts):"";$("tp").textContent=items.length?m(ts-tc):"";
+ $("count").textContent=items.length+" / "+MAX;
+ $("save").disabled=items.length>=MAX&&editId===null;
+ if(items.length>=MAX&&editId===null)msg("Liisku waa buuxaa (30). Tirtir dawo si aad mid cusub u geliso.","err");
+ $("clear").textContent=confirmClear?"Haa, tirtir dhammaan":"Tirtir dhammaan";
+}
+function edit(i){const it=items[i];editId=i;confirmDel=null;
+ $("name").value=it.name;$("dosage").value=it.dosage;$("unit").value=it.unit;$("cost").value=it.cost;$("sell").value=it.sell;
+ $("ftitle").textContent="Wax ka beddel: "+it.name;$("save").textContent="Kaydi";$("cancel").hidden=false;prof();msg("");render();window.scrollTo({top:0,behavior:"smooth"})}
+function reset(){editId=null;$("f").reset();prof();$("ftitle").textContent="Dawo cusub ku dar";$("save").textContent="Ku dar liiska";$("cancel").hidden=true}
+$("cancel").onclick=()=>{reset();msg("");render()};
+$("f").onsubmit=e=>{e.preventDefault();
+ const name=$("name").value.trim(),dosage=$("dosage").value,unit=$("unit").value,cost=parseFloat($("cost").value),sell=parseFloat($("sell").value);
+ if(!name)return msg("Geli magaca dawada.","err");if(!dosage)return msg("Dooro Dosage form.","err");if(!unit)return msg("Dooro Unit.","err");
+ if(isNaN(cost)||cost<0)return msg("Geli Cost price sax ah.","err");if(isNaN(sell)||sell<0)return msg("Geli Sell price sax ah.","err");
+ const rec={name,dosage,unit,cost:Math.round(cost*100)/100,sell:Math.round(sell*100)/100};
+ const was=editId!==null;
+ if(was)items[editId]=rec;else{if(items.length>=MAX)return msg("Liisku waa buuxaa (30).","err");items.push(rec)}
+ save();reset();render();
+ msg(sell<cost?"Digniin: Sell price waa ka yar yahay Cost price.":(was?"Waa la kaydiyay.":"“"+name+"” waa lagu daray."),sell<cost?"err":"ok");$("name").focus()};
+$("clear").onclick=()=>{if(!items.length)return;if(!confirmClear){confirmClear=true;render();setTimeout(()=>{confirmClear=false;render()},4000);return}
+ items=[];confirmClear=false;reset();save();render();msg("Liiska waa la tirtiray.","ok")};
+$("print").onclick=()=>{$("pdate").textContent="Date: "+new Date().toLocaleDateString("en-GB");window.print()};
+$("excel").onclick=()=>{
+ const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+ const lines=[["No.","Name","Dosage form","Unit","Cost price","Sell price","Profit"].map(q).join(",")];
+ items.forEach((it,i)=>lines.push([i+1,it.name,it.dosage,it.unit,it.cost.toFixed(2),it.sell.toFixed(2),(it.sell-it.cost).toFixed(2)].map(q).join(",")));
+ const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="JSCH-Medicine-List-"+new Date().toISOString().slice(0,10)+".csv";
+ document.body.appendChild(a);a.click();a.remove();msg("Faylka Excel waa la soo dejiyay.","ok")};
+render();
+</script></body></html>
