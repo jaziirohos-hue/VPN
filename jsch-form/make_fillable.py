@@ -20,7 +20,8 @@ c.setFillColor(NAVY); c.setFont("Helvetica-Bold",14); c.drawString(M,y,"MEDICINE
 c.setFont("Helvetica",9.5); c.drawRightString(W-M-42*mm,y,"Date:")
 f.textfield(name="date",x=W-M-40*mm,y=y-2.5*mm,width=40*mm,height=7*mm,borderColor=LINE,fillColor=white,textColor=NAVY,fontSize=10,borderWidth=0.6)
 # columns
-cols=[("No.",12*mm),("MEDICINE NAME",W-2*M-12*mm-38*mm-38*mm),("UNIT",38*mm),("PRICE ($)",38*mm)]
+cols=[("No.",12*mm),("MEDICINE NAME",W-2*M-12*mm-34*mm-32*mm-22*mm),("UNIT",34*mm),("PRICE ($)",32*mm),("SAVE",22*mm)]
+import json; geo=[]
 top=y-6*mm; hh=8*mm; rh=(top-hh-(M+34*mm))/30
 c.setFillColor(NAVY); c.rect(M,top-hh,W-2*M,hh,fill=1,stroke=0)
 c.setFillColor(white); c.setFont("Helvetica-Bold",9.5)
@@ -38,15 +39,17 @@ for r in range(30):
         f.textfield(name=f"{key}_{r+1}",x=xs[k]+0.8*mm,y=yy+0.6*mm,width=cols[k][1]-1.6*mm,height=rh-1.2*mm,
             borderWidth=0,fillColor=None,textColor=NAVY,fontSize=10,fontName="Helvetica",
             tooltip=f"{cols[k][0].title()} {r+1}")
+    geo.append([xs[4]+1.5*mm,yy+0.8*mm,cols[4][1]-3*mm,rh-1.6*mm])
 end=top-hh-30*rh
 # footer
 fy=M+24*mm
 c.setFillColor(NAVY); c.setFont("Helvetica",9.5)
 c.drawString(M,fy,"Prepared by:"); f.textfield(name="prepared_by",x=M+22*mm,y=fy-2.5*mm,width=55*mm,height=7*mm,borderWidth=0.6,borderColor=LINE,fillColor=white,textColor=NAVY,fontSize=10)
-c.drawString(M+84*mm,fy,"Signature:"); c.setStrokeColor(NAVY); c.line(M+102*mm,fy-2*mm,M+118*mm,fy-2*mm)
+c.drawString(M+84*mm,fy,"Signature:"); c.setStrokeColor(NAVY); c.line(M+102*mm,fy-2*mm,M+150*mm,fy-2*mm)
 c.setStrokeColor(GREEN); c.setLineWidth(3.5); c.line(M,M+16*mm,W-M,M+16*mm)
 c.drawImage("emblem.png",M,M+1*mm,13*mm,13*mm,mask="auto")
 c.setFillColor(NAVY); c.setFont("Helvetica-Bold",11); c.drawString(M+15*mm,M+8.5*mm,"JAZEERA SPECIALIST COMMUNITY HOSPITAL (JSCH)")
 c.setFillColor(GREEN); c.setFont("Helvetica-Bold",9.5); c.drawString(M+15*mm,M+3.5*mm,"Tel: +252 61 259 0697")
 c.setFillColor(HexColor("#666666")); c.setFont("Helvetica",7.5); c.drawRightString(W-M,M+3.5*mm,"Pharmacy Department")
 c.save()
+json.dump(geo,open("save_geo.json","w"))
