@@ -35,7 +35,7 @@ for r in range(30):
     c.setStrokeColor(LINE); c.setLineWidth(0.5); c.rect(M,yy,W-2*M,rh,fill=0,stroke=1)
     for xv in xs[1:-1]: c.line(xv,yy,xv,yy+rh)
     c.setFillColor(HexColor("#555555")); c.setFont("Helvetica",9); c.drawCentredString(M+6*mm,yy+2.3*mm,str(r+1))
-    for k,key in [(1,"name"),(2,"unit"),(3,"price")]:
+    for k,key in [(1,"name"),(2,"unit"),(3,"price"),(4,"save")]:
         f.textfield(name=f"{key}_{r+1}",x=xs[k]+0.8*mm,y=yy+0.6*mm,width=cols[k][1]-1.6*mm,height=rh-1.2*mm,
             borderWidth=0,fillColor=None,textColor=NAVY,fontSize=10,fontName="Helvetica",
             tooltip=f"{cols[k][0].title()} {r+1}")
