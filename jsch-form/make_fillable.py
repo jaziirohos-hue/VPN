@@ -43,7 +43,7 @@ end=top-hh-30*rh
 fy=M+24*mm
 c.setFillColor(NAVY); c.setFont("Helvetica",9.5)
 c.drawString(M,fy,"Prepared by:"); f.textfield(name="prepared_by",x=M+22*mm,y=fy-2.5*mm,width=55*mm,height=7*mm,borderWidth=0.6,borderColor=LINE,fillColor=white,textColor=NAVY,fontSize=10)
-c.drawString(M+84*mm,fy,"Signature:"); c.setStrokeColor(NAVY); c.line(M+102*mm,fy-2*mm,M+140*mm,fy-2*mm)
+c.drawString(M+84*mm,fy,"Signature:"); c.setStrokeColor(NAVY); c.line(M+102*mm,fy-2*mm,M+118*mm,fy-2*mm)
 c.setStrokeColor(GREEN); c.setLineWidth(3.5); c.line(M,M+16*mm,W-M,M+16*mm)
 c.drawImage("emblem.png",M,M+1*mm,13*mm,13*mm,mask="auto")
 c.setFillColor(NAVY); c.setFont("Helvetica-Bold",11); c.drawString(M+15*mm,M+8.5*mm,"JAZEERA SPECIALIST COMMUNITY HOSPITAL (JSCH)")
